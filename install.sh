@@ -143,6 +143,24 @@ for f in theme.txt font.pf2 icons/arch.png icons/windows.png; do
 done
 ok "Installed to $THEME_DEST"
 
+# ---- 1b. icon aliases for common menu entry classes ----
+# GRUB resolves a menu entry's icon by filename: it looks for
+# icons/<class>.png matching the entry's --class tags. A fresh Linux
+# entry is classed e.g. 'cachyos/gnu-linux/gnu/os' -- never literally
+# 'arch' -- so hardlink arch.png to the common class names (hardlinks
+# use zero extra disk space; cp is the fallback for FAT filesystems).
+ICON_SRC="$THEME_DEST/icons"
+for cls in gnu-linux gnu os linux cachyos arch ubuntu debian mint; do
+    [ -e "$ICON_SRC/$cls.png" ] && continue
+    if ln "$ICON_SRC/arch.png" "$ICON_SRC/$cls.png" 2>/dev/null || \
+       cp -p "$ICON_SRC/arch.png" "$ICON_SRC/$cls.png"; then
+        :
+    else
+        warn "Could not create icon alias for class '$cls'"
+    fi
+done
+ok "Created icon aliases for common entry classes"
+
 # ---- 2. backup + update /etc/default/grub ----
 if [ -f "$GRUB_CFG" ]; then
     BAK="${GRUB_CFG}.bak.$(date +%Y%m%d%H%M%S)"
