@@ -13,7 +13,7 @@ If you make something out of this, be sure to credit me (and send it to me too, 
 - The install script should handle most of the work.
 - There are only two images. One for Linux and one for Windows. Other options like "Advanced options" or "Snapshots" will display nothing (black screen).
 - Reorder your boot options so that Linux is right above Windows to match the drawings. Other options can be hidden left in an order that you can remember.
-- If you really need to use advanced options like "Snapshots", you can add a line in your grub.cfg to switch to another them when you enter the submenu. (kind of advanced so figure it out yourself lol)
+- If you really need to use advanced options like "Snapshots", you can add a line in your grub.cfg to switch to another theme when you enter the submenu. (kind of advanced so figure it out yourself lol)
 
 ## Installation
 
