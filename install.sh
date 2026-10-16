@@ -107,7 +107,7 @@ confirm_install() {
     fi
     read -r -p "  Continue? [Y/n] " ans
     case "$ans" in
-        n|N|no) die "Cancelled by user." ;;
+        n|N|no|No|NO) die "Cancelled by user." ;;
     esac
 }
 
@@ -122,11 +122,13 @@ require_root
 detect_layout
 THEME_DEST="$THEME_DIR/$THEME_NAME"
 distro_greeting
-confirm_install
 
+# Fail fast before asking the user to confirm anything
 if [ ! -f "$THEME_SRC/theme.txt" ]; then
     die "Could not find theme files next to this script ('$THEME_SRC')."
 fi
+
+confirm_install
 
 # ---- 1. install theme files (clean reinstall) ----
 echo "  Installing theme..."
@@ -134,7 +136,7 @@ if [ -d "$THEME_DEST" ]; then
     rm -rf "$THEME_DEST"
     ok "Removed previous install"
 fi
-mkdir -p "$THEME_DIR"
+mkdir -p "$THEME_DIR" || die "Failed to create $THEME_DIR."
 cp -r "$THEME_SRC" "$THEME_DIR/" || die "Failed to copy theme files."
 for f in theme.txt font.pf2 icons/arch.png icons/windows.png; do
     [ -f "$THEME_DEST/$f" ] || die "Missing file after copy: $f"
@@ -144,7 +146,7 @@ ok "Installed to $THEME_DEST"
 # ---- 2. backup + update /etc/default/grub ----
 if [ -f "$GRUB_CFG" ]; then
     BAK="${GRUB_CFG}.bak.$(date +%Y%m%d%H%M%S)"
-    cp -a "$GRUB_CFG" "$BAK"
+    cp -a "$GRUB_CFG" "$BAK" || die "Failed to back up $GRUB_CFG -- aborting to avoid editing it unprotected."
     ok "Backed up $GRUB_CFG -> $BAK"
 else
     warn "$GRUB_CFG not found -- creating a new one"
@@ -156,12 +158,12 @@ if grep -q '^GRUB_THEME=' "$GRUB_CFG"; then
     if grep -Fq "GRUB_THEME=\"${THEME_DEST}/theme.txt\"" "$GRUB_CFG"; then
         ok "GRUB_THEME already points at Miku Dating Sim"
     else
-        sed -i '/^GRUB_THEME=/d' "$GRUB_CFG"
-        printf '\n%s\n' "$THEME_LINE" >> "$GRUB_CFG"
+        sed -i '/^GRUB_THEME=/d' "$GRUB_CFG" || die "Failed to update $GRUB_CFG."
+        printf '\n%s\n' "$THEME_LINE" >> "$GRUB_CFG" || die "Failed to write $GRUB_CFG."
         ok "Updated GRUB_THEME -> Miku Dating Sim"
     fi
 else
-    printf '\n%s\n' "$THEME_LINE" >> "$GRUB_CFG"
+    printf '\n%s\n' "$THEME_LINE" >> "$GRUB_CFG" || die "Failed to write $GRUB_CFG."
     ok "Added GRUB_THEME to $GRUB_CFG"
 fi
 
@@ -172,7 +174,7 @@ GRUB_TOOL="$(find_grub_tool || true)"
 echo "  Rebuilding GRUB with ${BOLD}$(basename "$GRUB_TOOL")${RESET}..."
 case "$(basename "$GRUB_TOOL")" in
     update-grub)
-        "$GRUB_TOOL" || die "grub-mkconfig failed."
+        "$GRUB_TOOL" || die "$(basename "$GRUB_TOOL") failed."
         ;;
     *)
         "$GRUB_TOOL" -o "$GRUB_FILE" || die "$(basename "$GRUB_TOOL") failed."
