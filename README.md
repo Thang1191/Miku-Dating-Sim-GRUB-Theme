@@ -39,6 +39,8 @@ chmod +x install.sh
 sudo ./install.sh
 ```
 
+The script works across distros — it auto-detects whether your system uses `update-grub`, `grub2-mkconfig`, or `grub-mkconfig`, and figures out the right GRUB layout (`/boot/grub` vs `/boot/grub2`). It can be run from anywhere (no need to be inside the repo folder), backs up `/etc/default/grub` before touching it, and does a clean reinstall so re-running it never leaves stale theme files behind.
+
 5. Reboot to test your new theme
 
 ## Manual installation
@@ -70,6 +72,8 @@ Remove the `GRUB_THEME=` line from `/etc/default/grub`, then regenerate:
 ```shell
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
+
+> The installer saves a copy of `/etc/default/grub` as a `.bak.<timestamp>` file next to it before making changes (the path is shown at the end of the install). To fully restore your previous config, copy it back before removing the `GRUB_THEME=` line.
 
 ---
 
