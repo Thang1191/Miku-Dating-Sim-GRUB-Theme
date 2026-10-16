@@ -18,7 +18,7 @@ Fans of the original will recognize the layout — this version swaps the red pi
 1. Clone the repo
 
 ```shell
-git clone <your-repo-url>
+git clone https://github.com/Thang1191/Miku-Dating-Sim-GRUB-Theme
 ```
 
 2. Go into the folder
