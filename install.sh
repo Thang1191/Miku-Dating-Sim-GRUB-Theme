@@ -6,6 +6,8 @@
 # Works on Debian/Ubuntu/Mint/Pop/Arch/CachyOS/Fedora/openSUSE
 #   - auto-detects grub-mkconfig, grub2-mkconfig or update-grub
 #   - auto-detects /boot/grub vs /boot/grub2 layout
+#   - auto-aliases the Linux art to whatever your distro's GRUB
+#     menu-entry classes are (distro-aware, no hardcoded list)
 #   - runnable from anywhere (script dir is resolved automatically)
 #   - backs up /etc/default/grub before modifying it
 # ===============================================================
@@ -143,14 +145,16 @@ for f in theme.txt font.pf2 icons/arch.png icons/windows.png; do
 done
 ok "Installed to $THEME_DEST"
 
-# ---- 1b. icon aliases for common menu entry classes ----
+# ---- 1b. icon aliases for the universal Linux entry classes ----
 # GRUB resolves a menu entry's icon by filename: it looks for
 # icons/<class>.png matching the entry's --class tags. A fresh Linux
 # entry is classed e.g. 'cachyos/gnu-linux/gnu/os' -- never literally
-# 'arch' -- so hardlink arch.png to the common class names (hardlinks
-# use zero extra disk space; cp is the fallback for FAT filesystems).
+# 'arch' -- so alias arch.png to the classes that every Linux distro
+# shares. Distro-specific classes are detected later from the
+# generated grub.cfg (step 3b). Hardlinks use zero extra disk space;
+# cp is the fallback for FAT filesystems.
 ICON_SRC="$THEME_DEST/icons"
-for cls in gnu-linux gnu os linux cachyos arch ubuntu debian mint; do
+for cls in gnu-linux gnu os linux; do
     [ -e "$ICON_SRC/$cls.png" ] && continue
     if ln "$ICON_SRC/arch.png" "$ICON_SRC/$cls.png" 2>/dev/null || \
        cp -p "$ICON_SRC/arch.png" "$ICON_SRC/$cls.png"; then
@@ -159,7 +163,7 @@ for cls in gnu-linux gnu os linux cachyos arch ubuntu debian mint; do
         warn "Could not create icon alias for class '$cls'"
     fi
 done
-ok "Created icon aliases for common entry classes"
+ok "Created aliases for universal Linux classes"
 
 # ---- 2. backup + update /etc/default/grub ----
 if [ -f "$GRUB_CFG" ]; then
@@ -199,6 +203,25 @@ case "$(basename "$GRUB_TOOL")" in
         ;;
 esac
 ok "GRUB configuration regenerated"
+
+# ---- 3b. distro-aware icon aliases ----
+# Read the freshly generated grub.cfg and alias arch.png to every
+# menu entry class that does not have its own icon yet. This covers
+# ANY distro -- whatever the running OS or os-prober entries are
+# classed as -- with no hardcoded distro list to maintain.
+for cls in $(grep -oE -- '--class [a-zA-Z0-9_-]+' "$GRUB_FILE" 2>/dev/null | awk '{print $2}' | sort -u); do
+    # windows keeps its dedicated art; skip it and miscellaneous classes
+    case "$cls" in
+        windows|uefi-firmware|firmware|efi|poweroff|reboot|halt) continue ;;
+    esac
+    [ -e "$ICON_SRC/$cls.png" ] && continue
+    if ln "$ICON_SRC/arch.png" "$ICON_SRC/$cls.png" 2>/dev/null || \
+       cp -p "$ICON_SRC/arch.png" "$ICON_SRC/$cls.png"; then
+        ok "Aliased arch.png -> icons/$cls.png"
+    else
+        warn "Could not create icon alias for class '$cls'"
+    fi
+done
 
 # ---- 4. verify ----
 if [ -f "$GRUB_FILE" ]; then

@@ -11,8 +11,7 @@ Fans of the original will recognize the layout — this version swaps the red pi
 **Note:**
 - The theme ships with icons for **Linux** (`arch.png`) and **Windows** (`windows.png`).
 - While the icons are **arranged horizontally** on screen, you still navigate using the **Up** and **Down arrow keys** as in a normal GRUB menu.
-- The Linux Miku image is placed at `arch.png`, but GRUB picks icons by the menu entry's class name (e.g. `gnu-linux`, `gnu`, `os`, or a distro name like `cachyos`/`ubuntu`). The installer automatically creates hardlink aliases from `arch.png` to the common Linux classes, so the art shows up on most distros. If a custom entry still shows a plain background, add the missing class manually, e.g.
-  `cp icons/arch.png icons/mycustomclass.png`.
+- The Linux Miku image is placed at `arch.png`, but GRUB picks icons by the menu entry's class name (e.g. `gnu-linux`, `gnu`, `os`, or a distro name like `cachyos`/`ubuntu`). The installer automatically detects the classes used by **your** distro from the generated `grub.cfg` and aliases `arch.png` to each of them (hardlinks — zero extra disk space), so the art shows up without any manual steps. Only entries classed e.g. `windows` keep their dedicated art. On exotic grubs where parsing finds nothing, you can still add a class manually: `cp icons/arch.png icons/yourclass.png`.
 
 ## Installation
 
