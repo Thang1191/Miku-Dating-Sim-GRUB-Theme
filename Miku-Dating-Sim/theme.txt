@@ -1,0 +1,31 @@
+# =============================
+# Miku Dating Sim GRUB Theme
+# Matrix Morpheus-inspired
+# =============================
+
+# Background and general settings
+desktop-color: "#000000"
+title-text: ""
+terminal-font: "font.pf2"
+terminal-left: "5%"
+terminal-top: "80%"
+terminal-width: "100%"
+terminal-height: "100%"
+
++ boot_menu {
+    left = 0%
+    top = 0%
+    width = 110%
+    height = 100%
+    item_font = "font.pf2"
+    item_color = "#00AA00"
+    selected_item_color = "#FFFFFF"
+    selected_item_font = "font.pf2"
+    icon_width = 1920
+    icon_height = 1080
+    item_height = 1080
+    item_width = 100
+    item_padding = 0
+    item_icon_space = 0
+    item_spacing = 0
+}
