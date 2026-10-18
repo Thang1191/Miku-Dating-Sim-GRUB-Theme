@@ -9,12 +9,17 @@ If you make something out of this, be sure to credit me (and send it to me too, 
 
 ---
 
-**Note:** pls read so you know what you're getting yourself into :P
+**Note:** pls read so you know what you're getting yourself into :P **(Troubleshoot guide below!!!)**
 - The install script should handle most of the work.
 - There are only two images (1920x1080). One for Linux and one for Windows. Other options like "Advanced options" or "Snapshots" will display nothing (black screen).
 - Reorder your boot options so that Linux is right above Windows to match the drawings. Other options can be hidden or set in an order that you can remember.
 - If you really need to use advanced options like "Snapshots", you can add a line in your grub to switch to another theme when you enter the submenu. (kind of advanced so figure it out yourself lol)
-
+- ⚠️ **If you are seeing a back screen:** The repo only includes arch.png and windows.png. You have to look into the folder and rename arch.png to [your distro's class].png. You can find your distro's class in grub.cfg. The install script should be able to handle this, otherwise you have to fix it manually lol.
+  + Here's a quick command to see all of your classes:
+    
+    ```shell
+      grep --color=auto "class " /boot/grub/grub.cfg
+    ```
 ## Installation
 
 1. Clone the repo
@@ -60,6 +65,7 @@ And regenerate the GRUB config:
 ```shell
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
+> The repo only includes arch.png and windows.png. You have to look into the folder and rename arch.png to [your distro's class].png. You can find your distro's class in grub.cfg. If it's too much work, just use the install script.
 
 ## Uninstall
 
