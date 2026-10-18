@@ -20,7 +20,7 @@ If you make something out of this, be sure to credit me (and send it to me too, 
     ```shell
       grep --color=auto "class " /boot/grub/grub.cfg
     ```
-## Installation
+## Installation (Recommended!)
 
 1. Clone the repo
 
