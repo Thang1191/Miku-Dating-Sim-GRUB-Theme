@@ -189,6 +189,33 @@ else
     ok "Added GRUB_THEME to $GRUB_CFG"
 fi
 
+# ---- 2b. make sure GRUB is allowed to use a graphical terminal ----
+# Fedora/openSUSE ship GRUB_TERMINAL_OUTPUT="console" by default. GRUB only
+# emits the theme block (and loads gfxterm/gfxmenu) when gfxterm is one of
+# the requested terminals, so GRUB_THEME is silently ignored with console
+# output -- grub.cfg then contains no theme reference at all.
+if grep -q '^GRUB_TERMINAL_OUTPUT=' "$GRUB_CFG"; then
+    if grep -q '^GRUB_TERMINAL_OUTPUT=.*gfxterm' "$GRUB_CFG"; then
+        ok "GRUB_TERMINAL_OUTPUT already includes gfxterm"
+    else
+        sed -i 's/^GRUB_TERMINAL_OUTPUT=.*/GRUB_TERMINAL_OUTPUT="gfxterm"/' "$GRUB_CFG" \
+            || die "Failed to update GRUB_TERMINAL_OUTPUT in $GRUB_CFG."
+        ok "Switched GRUB_TERMINAL_OUTPUT -> gfxterm"
+    fi
+else
+    printf '\n%s\n' 'GRUB_TERMINAL_OUTPUT="gfxterm"' >> "$GRUB_CFG" \
+        || die "Failed to write $GRUB_CFG."
+    ok "Set GRUB_TERMINAL_OUTPUT=\"gfxterm\""
+fi
+
+# The art is full-screen 1920x1080, so prefer that mode and fall back to
+# auto on hardware that cannot do it. Don't override a user's choice.
+if ! grep -q '^GRUB_GFXMODE=' "$GRUB_CFG"; then
+    printf '%s\n' 'GRUB_GFXMODE="1920x1080,auto"' >> "$GRUB_CFG" \
+        || die "Failed to write $GRUB_CFG."
+    ok "Set GRUB_GFXMODE=\"1920x1080,auto\""
+fi
+
 # ---- 3. regenerate grub.cfg ----
 GRUB_TOOL="$(find_grub_tool || true)"
 [ -n "$GRUB_TOOL" ] || die "No GRUB config tool found (tried update-grub, grub2-mkconfig, grub-mkconfig)."
@@ -229,6 +256,8 @@ if [ -f "$GRUB_FILE" ]; then
         ok "Theme reference found in $GRUB_FILE"
     else
         warn "Theme reference not found in $GRUB_FILE - check manually"
+        warn "Make sure GRUB_TERMINAL_OUTPUT in $GRUB_CFG includes gfxterm,"
+        warn "then rerun: ${BOLD}grub2-mkconfig -o $GRUB_FILE${RESET}"
     fi
 else
     warn "Could not find $GRUB_FILE to verify"

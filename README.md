@@ -20,6 +20,7 @@ If you make something out of this, be sure to credit me (and send it to me too, 
     ```shell
       grep --color=auto "class " /boot/grub/grub.cfg
     ```
+- ⚠️ **Fedora/openSUSE users:** these distros default to `GRUB_TERMINAL_OUTPUT="console"`, which makes GRUB silently ignore `GRUB_THEME` (the theme line is never written to `grub.cfg`). The installer switches it to `gfxterm` automatically; if you installed manually, change it yourself and rerun `grub2-mkconfig`.
 ## Installation (Recommended!)
 
 1. Clone the repo
